@@ -5,6 +5,8 @@
   "main": "index.js",
   "scripts": {
     "dev": "node server.js",
+    "build": "next build",
+    "start": "next start -P $PORT",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -13,6 +15,7 @@
   "dependencies": {
     "express": "^4.15.3",
     "isomorphic-unfetch": "^1.0.0",
+    "marked": "^0.3.6",
     "next": "^2.4.0",
     "react": "^15.5.4",
     "react-dom": "^15.5.4"

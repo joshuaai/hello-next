@@ -299,3 +299,178 @@ Post.getInitialProps = async function (context) {
 
 export default Post
 ```
+
+## Styling Components
+Next.js comes preloaded with a CSS in JS framework called *styled-jsx*.
+
+It allows you to write familiar CSS rules for your components; rules will have no impact on anything other than the components (not even child components).
+
+Now let's add some styles into our home page. Create a Blog `pages/blog.js` component with the code below:
+```js
+import Layout from '../components/Layout.js'
+import Link from 'next/link'
+
+function getPosts () {
+  return [
+    { id: 'hello-nextjs', title: 'Hello Next.js'},
+    { id: 'learn-nextjs', title: 'Learn Next.js is awesome'},
+    { id: 'deploy-nextjs', title: 'Deploy apps with ZEIT'},
+  ]
+}
+
+const PostLink = ({ post }) => (
+  <li>
+    <Link as={`/p/${post.id}`} href={`/post?title=${post.title}`}>
+      <a>{post.title}</a>
+    </Link>
+    <style jsx>{`
+      li {
+        list-style: none;
+        margin: 5px 0;
+      }
+
+      a {
+        text-decoration: none;
+        color: blue;
+        font-family: "Arial";
+      }
+
+      a:hover {
+        opacity: 0.6;
+      }
+    `}</style>
+  </li>
+)
+
+export default () => (
+  <Layout>
+    <h1>My Blog</h1>
+    <ul>
+      {getPosts().map((post) => (
+        <PostLink key={post.id} post={post}/>
+      ))}
+    </ul>
+    <style jsx>{`
+      h1, a {
+        font-family: "Arial";
+      }
+
+      ul {
+        padding: 0;
+      }
+
+      li {
+        list-style: none;
+        margin: 5px 0;
+      }
+
+      a {
+        text-decoration: none;
+        color: blue;
+      }
+
+      a:hover {
+        opacity: 0.6;
+      }
+    `}</style>
+  </Layout>
+)
+```
+CSS rules have no effect on elements inside of a child component. You need to style the child component directly.
+
+### Global Styles
+Sometimes, we do need to change styles inside of a child component. This is especially true when using markdown with React. You can see that on our post page. Apply the following content to `pages/blogPost.js`:
+```js
+import Layout from '../components/Layout.js'
+import Markdown from '../components/Markdown'
+
+export default (props) => (
+  <Layout>
+   <h1>{props.url.query.title}</h1>
+   <div className="markdown">
+     <Markdown content={`
+This is our blog post.
+Yes. We can have a [link](/link).
+And we can have a title as well.
+
+### This is a title
+
+And here's the content.
+     `}/>
+   </div>
+   <style jsx global>{`
+     .markdown {
+       font-family: 'Arial';
+     }
+
+     .markdown a {
+       text-decoration: none;
+       color: blue;
+     }
+
+     .markdown a:hover {
+       opacity: 0.6;
+     }
+
+     .markdown h3 {
+       margin: 0;
+       padding: 0;
+       text-transform: uppercase;
+     }
+  `}</style>
+  </Layout>
+)
+```
+
+Install the markdown package:
+```bash
+npm install marked --save
+```
+
+Add the `components/Markdown.js` component:
+```js
+import React from 'react'
+import marked from 'marked'
+
+marked.setOptions({
+  gfm: true,
+  tables: true,
+  breaks: true,
+  sanitize: false
+})
+
+export default class Markdown extends React.Component {
+  render () {
+    const { content } = this.props
+
+    return (
+      <div dangerouslySetInnerHTML={{ __html: marked(content) }}/>
+    )
+  }
+}
+```
+
+## Deploying a Next.js App
+First of all, we need to build our Next.js app for production. It will produce an optimized set of code for production.
+
+For that, simply add the following npm script:
+```json
+"scripts": {
+  "build": "next build"
+}
+```
+
+Now we are going to run two instances of our app. Usually, we do this to horizontally scale our app. First of all, do the following changes to our start npm script:
+```json
+"scripts": {
+  "start": "next start -p $PORT"
+}
+```
+
+Then run: 
+```bash
+npm run build
+
+PORT=8000 npm start
+PORT=9000 npm start
+```

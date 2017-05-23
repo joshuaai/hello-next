@@ -15,6 +15,12 @@ app.prepare()
     app.render(req, res, actualPage, queryParams)
   })
 
+  server.get('/bp/:id', (req, res) => {
+    const actualPage = '/blogPost'
+    const queryParams = { title: req.params.id } 
+    app.render(req, res, actualPage, queryParams)
+  })
+
   server.get('*', (req, res) => {
     return handle(req, res)
   })
